@@ -23,7 +23,7 @@ abstract contract ObexPayloadEthereum {
      * @dev Required, useful for implementing "earliest launch date" or "office hours" strategy
      * @return result The result of the check (true = executable, false = not)
      */
-    function isExecutable() external view returns (bool result) {
+    function isExecutable() external pure returns (bool result) {
         result = true;  // TODO Change this
     }
 
