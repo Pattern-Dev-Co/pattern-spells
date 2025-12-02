@@ -388,14 +388,7 @@ abstract contract SpellRunner is Test {
         require(_isContract(payloadAddress), "PAYLOAD IS NOT A CONTRACT");
 
         uint256 bytecodeSize = address(payloadAddress).code.length;
-        bytes32 bytecodeHash;
-
-        assembly {
-            let ptr := mload(0x40)
-
-            extcodecopy(payloadAddress, ptr, 0, bytecodeSize)
-            bytecodeHash := keccak256(ptr, bytecodeSize)
-        }
+        bytes32 bytecodeHash = payloadAddress.codehash;
 
         vm.prank(Ethereum.PAUSE_PROXY);
         IStarGuardLike(Ethereum.OBEX_STAR_GUARD).plot({
