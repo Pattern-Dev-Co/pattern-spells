@@ -387,7 +387,6 @@ abstract contract SpellRunner is Test {
         IExecutor executor     = chainData[ChainIdUtils.Ethereum()].executor;
         require(_isContract(payloadAddress), "PAYLOAD IS NOT A CONTRACT");
 
-        uint256 bytecodeSize = address(payloadAddress).code.length;
         bytes32 bytecodeHash = payloadAddress.codehash;
 
         vm.prank(Ethereum.PAUSE_PROXY);
