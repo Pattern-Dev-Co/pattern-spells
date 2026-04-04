@@ -7,12 +7,12 @@
 [submodule "lib/dss-allocator"]
 	path = lib/dss-allocator
 	url = https://github.com/makerdao/dss-allocator
-[submodule "lib/obex-address-registry"]
-	path = lib/obex-address-registry
-	url = https://github.com/obex-incubator/obex-address-registry
 [submodule "lib/obex-alm-controller"]
 	path = lib/obex-alm-controller
 	url = https://github.com/obex-incubator/obex-alm-controller
 [submodule "lib/obex-gov-relay"]
 	path = lib/obex-gov-relay
 	url = https://github.com/obex-incubator/obex-gov-relay
+[submodule "lib/obex-address-registry"]
+	path = lib/obex-address-registry
+	url = https://github.com/obex-incubator/obex-address-registry

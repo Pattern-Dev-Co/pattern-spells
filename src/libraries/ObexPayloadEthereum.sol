@@ -18,6 +18,15 @@ abstract contract ObexPayloadEthereum {
         _execute();
     }
 
+    /**
+     * @notice Checks if the star payload is executable in the current block
+     * @dev Required, useful for implementing "earliest launch date" or "office hours" strategy
+     * @return result The result of the check (true = executable, false = not)
+     */
+    function isExecutable() external pure returns (bool result) {
+        result = true;  // TODO Change this
+    }
+
     function _execute() internal virtual;
 
     function _encodePayloadQueue(address _payload) internal pure returns (bytes memory) {
@@ -84,7 +93,4 @@ abstract contract ObexPayloadEthereum {
             slope
         );
     }
-
-
-
 }

@@ -25,6 +25,8 @@ import { RecordedLogs }          from "xchain-helpers/testing/utils/RecordedLogs
 import { ChainIdUtils, ChainId } from "../libraries/ChainId.sol";
 import { ObexPayloadEthereum }  from "../libraries/ObexPayloadEthereum.sol";
 
+import { IStarGuardLike } from "src/interfaces/Interfaces.sol";
+
 abstract contract SpellRunner is Test {
     using DomainHelpers for Domain;
     using DomainHelpers for StdChains.Chain;
@@ -385,13 +387,18 @@ abstract contract SpellRunner is Test {
         IExecutor executor     = chainData[ChainIdUtils.Ethereum()].executor;
         require(_isContract(payloadAddress), "PAYLOAD IS NOT A CONTRACT");
 
+        bytes32 bytecodeHash = payloadAddress.codehash;
+
         vm.prank(Ethereum.PAUSE_PROXY);
-        (bool success,) = address(executor).call(abi.encodeWithSignature(
-            'exec(address,bytes)',
-            payloadAddress,
-            abi.encodeWithSignature('execute()')
-        ));
-        require(success, "FAILED TO EXECUTE PAYLOAD");
+        IStarGuardLike(Ethereum.OBEX_STAR_GUARD).plot({
+            addr_ : payloadAddress,
+            tag_  : bytecodeHash
+        });        
+        
+        address payload = IStarGuardLike(Ethereum.OBEX_STAR_GUARD).exec();
+
+        require(payload == payloadAddress, "FAILED TO EXECUTE PAYLOAD");
+        
         chainData[ChainIdUtils.Ethereum()].spellExecuted = true;
     }
 
