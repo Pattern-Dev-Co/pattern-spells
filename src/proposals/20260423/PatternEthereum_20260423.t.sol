@@ -1,22 +1,22 @@
 // SPDX-License-Identifier: AGPL-3.0
 pragma solidity ^0.8.10;
 
-import "src/test-harness/ObexTestBase.sol";
+import "src/test-harness/PatternTestBase.sol";
 
 import { IERC20 } from "forge-std/interfaces/IERC20.sol";
 
-import { Ethereum } from "lib/obex-address-registry/src/Ethereum.sol";
+import { Ethereum } from "lib/pattern-address-registry/src/Ethereum.sol";
 
-import { RateLimitHelpers } from "lib/obex-alm-controller/src/RateLimitHelpers.sol";
+import { RateLimitHelpers } from "lib/pattern-alm-controller/src/RateLimitHelpers.sol";
 
-import { MainnetController } from "obex-alm-controller/src/MainnetController.sol";
+import { MainnetController } from "pattern-alm-controller/src/MainnetController.sol";
 
-import { IALMProxy }   from "obex-alm-controller/src/interfaces/IALMProxy.sol";
-import { IRateLimits } from "obex-alm-controller/src/interfaces/IRateLimits.sol";
+import { IALMProxy }   from "pattern-alm-controller/src/interfaces/IALMProxy.sol";
+import { IRateLimits } from "pattern-alm-controller/src/interfaces/IRateLimits.sol";
 
 import { AllocatorVault }  from 'dss-allocator/src/AllocatorVault.sol';
 
-import { ObexEthereum_20251113 as ObexSpell } from "./ObexEthereum_20251113.sol";
+import { PatternEthereum_20260423 as PatternSpell } from "./PatternEthereum_20260423.sol";
 
 interface IInvestmentManager {
     function fulfillCancelDepositRequest(
@@ -99,14 +99,14 @@ interface AutoLineLike {
     function exec(bytes32) external;
 }
 
-contract ObexEthereum_20251113Test is ObexTestBase {
+contract PatternEthereum_20260423Test is PatternTestBase {
 
-    ObexSpell internal OBEX_SPELL = ObexSpell(0xF538909eDF14d2c23002C2b3882Ad60f79d61893);
+    PatternSpell internal PATTERN_SPELL;
     address internal DEPLOYER;
 
     address internal constant MCD_IAM_AUTO_LINE = 0xC7Bdd1F2B16447dcf3dE045C4a039A60EC2f0ba3;
 
-    bytes32 internal constant ALLOCATOR_ILK = "ALLOCATOR-OBEX-A";
+    bytes32 internal constant ALLOCATOR_ILK = "ALLOCATOR-PATTERN-A";
 
     uint256 constant WAD = 10 ** 18;
     uint256 constant RAD = 10 ** 45;
@@ -115,21 +115,19 @@ contract ObexEthereum_20251113Test is ObexTestBase {
     IRateLimits       rateLimits = IRateLimits(Ethereum.ALM_RATE_LIMITS);
     MainnetController controller = MainnetController(Ethereum.ALM_CONTROLLER);
 
-
-
     constructor() {
-        id = "20251113";
+        id = "20260423";
     }
 
     function _setupAddresses() internal virtual {
-        // DEPLOYER = makeAddr("DEPLOYER");
-        // vm.prank(DEPLOYER);
-        // OBEX_SPELL = new ObexSpell();
+        DEPLOYER = makeAddr("DEPLOYER");
+        vm.prank(DEPLOYER);
+        PATTERN_SPELL = new PatternSpell();
     }
 
     function setUp() public {
-        // November 10, 2025
-        setupMainnetDomain({ mainnetForkBlock: 23770489 });
+        // April 6, 2026
+        setupMainnetDomain({ mainnetForkBlock: 24825005 });
         _setupAddresses();
 
         vm.startPrank(Ethereum.PAUSE_PROXY);
@@ -138,9 +136,9 @@ contract ObexEthereum_20251113Test is ObexTestBase {
     }
 
     function test_almSystemDeployment() public view {
-        assertEq(almProxy.hasRole(0x0, Ethereum.OBEX_PROXY),   true, "incorrect-admin-almProxy");
-        assertEq(rateLimits.hasRole(0x0, Ethereum.OBEX_PROXY), true, "incorrect-admin-rateLimits");
-        assertEq(controller.hasRole(0x0, Ethereum.OBEX_PROXY), true, "incorrect-admin-controller");
+        assertEq(almProxy.hasRole(0x0, Ethereum.PATTERN_PROXY),   true, "incorrect-admin-almProxy");
+        assertEq(rateLimits.hasRole(0x0, Ethereum.PATTERN_PROXY), true, "incorrect-admin-rateLimits");
+        assertEq(controller.hasRole(0x0, Ethereum.PATTERN_PROXY), true, "incorrect-admin-controller");
 
         assertEq(almProxy.hasRole(0x0, DEPLOYER),   false, "incorrect-admin-almProxy");
         assertEq(rateLimits.hasRole(0x0, DEPLOYER), false, "incorrect-admin-rateLimits");
@@ -170,7 +168,7 @@ contract ObexEthereum_20251113Test is ObexTestBase {
         assertEq(rate, 1e27);
         assertEq(line, 10_000_000e45);
 
-        assertEq(IERC20(Ethereum.USDS).balanceOf(Ethereum.OBEX_PROXY),  0);
+        assertEq(IERC20(Ethereum.USDS).balanceOf(Ethereum.PATTERN_PROXY),  0);
     }
 
     function test_almSystemInitialization() public {
@@ -182,7 +180,6 @@ contract ObexEthereum_20251113Test is ObexTestBase {
 
         assertEq(controller.hasRole(controller.FREEZER(), Ethereum.ALM_FREEZER), true, "incorrect-freezer-controller");
         assertEq(controller.hasRole(controller.RELAYER(), Ethereum.ALM_RELAYER), true, "incorrect-relayer-controller");
-        assertEq(controller.hasRole(controller.RELAYER(), OBEX_SPELL.OZONE_OEA_RELAYER()), true, "incorrect-relayer-controller for Ozone OEA");
 
         assertEq(AllocatorVault(Ethereum.ALLOCATOR_VAULT).wards(Ethereum.ALM_PROXY), 1, "incorrect-vault-ward");
 
@@ -225,7 +222,7 @@ contract ObexEthereum_20251113Test is ObexTestBase {
         _assertRateLimit({
             key: RateLimitHelpers.makeAssetKey(
                 controller.LIMIT_4626_DEPOSIT(),
-                OBEX_SPELL.SYRUP_USDC_VAULT()
+                PATTERN_SPELL.SYRUP_USDC_VAULT()
             ),
             maxAmount: 0,
             slope: 0,
@@ -235,8 +232,8 @@ contract ObexEthereum_20251113Test is ObexTestBase {
         _assertRateLimit({
             key: RateLimitHelpers.makeAssetKey(
                 controller.LIMIT_MAPLE_REDEEM(),
-                OBEX_SPELL.SYRUP_USDC_VAULT()
-            ), 
+                PATTERN_SPELL.SYRUP_USDC_VAULT()
+            ),
             maxAmount: 0,
             slope: 0,
             message: "before execution: incorrect-syrup-usdc-redeem-rate-limit"
@@ -247,7 +244,7 @@ contract ObexEthereum_20251113Test is ObexTestBase {
         _assertRateLimit({
             key: RateLimitHelpers.makeAssetKey(
                 controller.LIMIT_4626_DEPOSIT(),
-                OBEX_SPELL.SYRUP_USDC_VAULT()
+                PATTERN_SPELL.SYRUP_USDC_VAULT()
             ),
             maxAmount: 100_000_000e6,
             slope: 20_000_000e6 / uint256(1 days),
@@ -257,7 +254,7 @@ contract ObexEthereum_20251113Test is ObexTestBase {
         _assertRateLimit({
             key: RateLimitHelpers.makeAssetKey(
                 controller.LIMIT_MAPLE_REDEEM(),
-                OBEX_SPELL.SYRUP_USDC_VAULT()
+                PATTERN_SPELL.SYRUP_USDC_VAULT()
             ),
             maxAmount: type(uint256).max,
             slope: 0,
@@ -281,9 +278,9 @@ contract ObexEthereum_20251113Test is ObexTestBase {
         executeMainnetPayload();
 
         // Whitelist ALM_PROXY with Maple permission manager
-        address poolManager = IPoolManagerLike(OBEX_SPELL.SYRUP_USDC_VAULT()).manager();
+        address poolManager = IPoolManagerLike(PATTERN_SPELL.SYRUP_USDC_VAULT()).manager();
         address poolDelegate = IMaplePoolManagerLike(poolManager).poolDelegate();
-        
+
         address[] memory lenders  = new address[](1);
         bool[]    memory booleans = new bool[](1);
         lenders[0]  = Ethereum.ALM_PROXY;
@@ -309,15 +306,15 @@ contract ObexEthereum_20251113Test is ObexTestBase {
         vm.startPrank(Ethereum.ALM_RELAYER);
         controller.mintUSDS(100_000_000e18);
         controller.swapUSDSToUSDC(100_000_000e6);
-        controller.depositERC4626(OBEX_SPELL.SYRUP_USDC_VAULT(), 100_000_000e6);
+        controller.depositERC4626(PATTERN_SPELL.SYRUP_USDC_VAULT(), 100_000_000e6);
 
 
         // Verify the allocation worked
-        assertGt(IERC20(OBEX_SPELL.SYRUP_USDC_VAULT()).balanceOf(Ethereum.ALM_PROXY), 0, "should have SyrupUSDC shares");
+        assertGt(IERC20(PATTERN_SPELL.SYRUP_USDC_VAULT()).balanceOf(Ethereum.ALM_PROXY), 0, "should have SyrupUSDC shares");
         vm.warp(block.timestamp + 10 days);
         controller.mintUSDS(100_000_000e18);
         // controller.swapUSDSToUSDC(100_000_000e6);
-        // controller.depositERC4626(OBEX_SPELL.SYRUP_USDC_VAULT(), 100_000_000e6);
+        // controller.depositERC4626(PATTERN_SPELL.SYRUP_USDC_VAULT(), 100_000_000e6);
         vm.stopPrank();
     }
 
@@ -337,9 +334,9 @@ contract ObexEthereum_20251113Test is ObexTestBase {
         executeMainnetPayload();
 
         // Whitelist ALM_PROXY with Maple permission manager
-        address poolManager = IPoolManagerLike(OBEX_SPELL.SYRUP_USDC_VAULT()).manager();
+        address poolManager = IPoolManagerLike(PATTERN_SPELL.SYRUP_USDC_VAULT()).manager();
         address poolDelegate = IMaplePoolManagerLike(poolManager).poolDelegate();
-        
+
         address[] memory lenders  = new address[](1);
         bool[]    memory booleans = new bool[](1);
         lenders[0]  = Ethereum.ALM_PROXY;
@@ -365,17 +362,17 @@ contract ObexEthereum_20251113Test is ObexTestBase {
         vm.startPrank(Ethereum.ALM_RELAYER);
         controller.mintUSDS(100_000_000e18);
         controller.swapUSDSToUSDC(100_000_000e6);
-        uint256 shares = controller.depositERC4626(OBEX_SPELL.SYRUP_USDC_VAULT(), 100_000_000e6);
+        uint256 shares = controller.depositERC4626(PATTERN_SPELL.SYRUP_USDC_VAULT(), 100_000_000e6);
         assertGt(shares, 0, "should have SyrupUSDC shares");
 
-        address manager = IPoolManagerLike(OBEX_SPELL.SYRUP_USDC_VAULT()).manager();
-        uint256 withdrawalManagerSharesBefore = IERC20(OBEX_SPELL.SYRUP_USDC_VAULT()).balanceOf(IPoolManagerLike(manager).withdrawalManager());
+        address manager = IPoolManagerLike(PATTERN_SPELL.SYRUP_USDC_VAULT()).manager();
+        uint256 withdrawalManagerSharesBefore = IERC20(PATTERN_SPELL.SYRUP_USDC_VAULT()).balanceOf(IPoolManagerLike(manager).withdrawalManager());
 
-        controller.requestMapleRedemption(OBEX_SPELL.SYRUP_USDC_VAULT(), shares);
-        assertEq(IERC20(OBEX_SPELL.SYRUP_USDC_VAULT()).balanceOf(Ethereum.ALM_PROXY), 0, "should have no SyrupUSDC shares");
-        assertEq(IERC20(OBEX_SPELL.SYRUP_USDC_VAULT()).balanceOf(IPoolManagerLike(manager).withdrawalManager()), withdrawalManagerSharesBefore + shares, "should have SyrupUSDC shares in withdrawal manager");
+        controller.requestMapleRedemption(PATTERN_SPELL.SYRUP_USDC_VAULT(), shares);
+        assertEq(IERC20(PATTERN_SPELL.SYRUP_USDC_VAULT()).balanceOf(Ethereum.ALM_PROXY), 0, "should have no SyrupUSDC shares");
+        assertEq(IERC20(PATTERN_SPELL.SYRUP_USDC_VAULT()).balanceOf(IPoolManagerLike(manager).withdrawalManager()), withdrawalManagerSharesBefore + shares, "should have SyrupUSDC shares in withdrawal manager");
         vm.stopPrank();
-        
+
         address USDC = Ethereum.USDC;
         uint256 proxyBalanceBefore = IERC20(USDC).balanceOf(Ethereum.ALM_PROXY);
         //prank as the withdrawal manager to process the redemptions
@@ -387,93 +384,5 @@ contract ObexEthereum_20251113Test is ObexTestBase {
         uint256 proxyBalanceAfter = IERC20(USDC).balanceOf(Ethereum.ALM_PROXY);
         assertEq(proxyBalanceAfter, proxyBalanceBefore + 100_000_000 * 1e6 - 1, "should have USDC in proxy");
     }
-
-    // function test_centrifugeVaultOnboarding() public {
-    //     _testCentrifugeOnboarding(
-    //         CENTRIFUGE_VAULT,
-    //         CENTRIFUGE_VAULT_TOKEN,
-    //         CENTRIFUGE_CONFIG,
-    //         100_000_000e6,
-    //         100_000_000e6,
-    //         50_000_000e6 / uint256(1 days)
-    //     );
-    // }
-
-    // function test_ongoingCentrifugeDeposits() public {
-    //     IVatLike vat = IVatLike(Ethereum.VAT);
-
-    //     uint256 dailyDepositAmount = 50_000_000;
-    //     bytes32 depositKey = RateLimitHelpers.makeAssetKey(
-    //         controller.LIMIT_7540_DEPOSIT(),
-    //         CENTRIFUGE_VAULT
-    //     );
-
-    //     vm.prank(Ethereum.PAUSE_PROXY);
-    //     AutoLineLike(MCD_IAM_AUTO_LINE).setIlk({
-    //         ilk:  ALLOCATOR_ILK,
-    //         line: 2_500_000_000 * RAD,
-    //         gap:  50_000_000 * RAD,
-    //         ttl:  1 days
-    //     });
-
-    //     executeMainnetPayload();
-
-    //     AutoLineLike(MCD_IAM_AUTO_LINE).exec(ALLOCATOR_ILK);
-
-    //     ( uint256 Art,,, uint256 line, ) = vat.ilks(ALLOCATOR_ILK);
-
-    //     assertEq(Art,  0);
-    //     assertEq(line, 50_000_000 * RAD);
-
-    //     for (uint256 i = 0; i < 20; i++) {
-    //         // The price of the centrifuge vault share is set to 2.0 in the test base
-    //         assertEq(IERC20(CENTRIFUGE_VAULT_TOKEN).balanceOf(Ethereum.ALM_PROXY), (dailyDepositAmount * 1e6 / 2) * i);
-
-    //         (Art,,, line, ) = vat.ilks(ALLOCATOR_ILK);
-    //         assertEq(Art, (dailyDepositAmount * WAD) * i);
-
-    //         assertEq(rateLimits.getCurrentRateLimit(depositKey), 100_000_000e6);
-
-    //         AutoLineLike(MCD_IAM_AUTO_LINE).exec(ALLOCATOR_ILK);
-    //         _centrifugeDeposit(dailyDepositAmount * 1e6);
-
-    //         // The price of the centrifuge vault share is set to 2.0 in the test base
-    //         assertEq(IERC20(CENTRIFUGE_VAULT_TOKEN).balanceOf(Ethereum.ALM_PROXY), (dailyDepositAmount * 1e6 / 2) * (i + 1));
-
-    //         (Art,,, line, ) = vat.ilks(ALLOCATOR_ILK);
-    //         assertEq(Art,  (dailyDepositAmount * WAD) * (i + 1));
-    //         assertEq(line, (dailyDepositAmount * RAD) * (i + 1));
-
-    //         assertEq(rateLimits.getCurrentRateLimit(depositKey), 50_000_000e6);
-
-    //         vm.roll(block.number + 1);
-    //         vm.warp(block.timestamp + 1 days + 1);
-    //     }
-
-    //     AutoLineLike(MCD_IAM_AUTO_LINE).exec(ALLOCATOR_ILK);
-
-    //     (Art,,, line, ) = vat.ilks(ALLOCATOR_ILK);
-    //     assertEq(Art,  1_000_000_000 * WAD);
-    //     assertEq(line, 1_050_000_000 * RAD);
-
-    //     // The price of the centrifuge vault share is set to 2.0 in the test base
-    //     assertEq(IERC20(CENTRIFUGE_VAULT_TOKEN).balanceOf(Ethereum.ALM_PROXY), 1_000_000_000 / 2 * 1e6);
-    // }
-
-    // function _centrifugeDeposit(uint256 depositAmount) internal {
-    //     vm.startPrank(Ethereum.ALM_RELAYER);
-    //     controller.mintUSDS(depositAmount * 1e12);
-    //     controller.swapUSDSToUSDC(depositAmount);
-    //     controller.requestDepositERC7540(CENTRIFUGE_VAULT, depositAmount);
-    //     vm.stopPrank();
-
-    //     _centrifugeFulfillDepositRequest(
-    //         CENTRIFUGE_CONFIG,
-    //         depositAmount
-    //     );
-
-    //     vm.prank(Ethereum.ALM_RELAYER);
-    //     controller.claimDepositERC7540(CENTRIFUGE_VAULT);
-    // }
 
 }

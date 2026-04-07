@@ -5,12 +5,7 @@ import { Test }      from "forge-std/Test.sol";
 import { StdChains } from "forge-std/StdChains.sol";
 import { console }   from "forge-std/console.sol";
 
-import { Ethereum }  from 'obex-address-registry/Ethereum.sol';
-// import { Arbitrum } from 'obex-address-registry/Arbitrum.sol';
-// import { Base }     from 'obex-address-registry/Base.sol';
-// import { Gnosis }   from 'obex-address-registry/Gnosis.sol';
-// import { Optimism } from 'obex-address-registry/Optimism.sol';
-// import { Unichain } from 'obex-address-registry/Unichain.sol';
+import { Ethereum }  from 'pattern-address-registry/Ethereum.sol';
 
 import { IExecutor } from 'lib/obex-gov-relay/src/interfaces/IExecutor.sol';
 
@@ -22,8 +17,8 @@ import { CCTPBridgeTesting }     from "xchain-helpers/testing/bridges/CCTPBridge
 import { Bridge, BridgeType }    from "xchain-helpers/testing/Bridge.sol";
 import { RecordedLogs }          from "xchain-helpers/testing/utils/RecordedLogs.sol";
 
-import { ChainIdUtils, ChainId } from "../libraries/ChainId.sol";
-import { ObexPayloadEthereum }  from "../libraries/ObexPayloadEthereum.sol";
+import { ChainIdUtils, ChainId }   from "../libraries/ChainId.sol";
+import { PatternPayloadEthereum }  from "../libraries/PatternPayloadEthereum.sol";
 
 import { IStarGuardLike } from "src/interfaces/Interfaces.sol";
 
@@ -148,7 +143,7 @@ abstract contract SpellRunner is Test {
         chainData[ChainIdUtils.Ethereum()].domain.selectFork();
 
         // Set up executor and controller for mainnet
-        chainData[ChainIdUtils.Ethereum()].executor       = IExecutor(Ethereum.OBEX_PROXY);
+        chainData[ChainIdUtils.Ethereum()].executor       = IExecutor(Ethereum.PATTERN_PROXY);
         chainData[ChainIdUtils.Ethereum()].prevController = Ethereum.ALM_CONTROLLER;
         chainData[ChainIdUtils.Ethereum()].newController  = Ethereum.ALM_CONTROLLER;
 
@@ -166,20 +161,20 @@ abstract contract SpellRunner is Test {
         // We default to Ethereum domain
         chainData[ChainIdUtils.Ethereum()].domain.selectFork();
 
-        chainData[ChainIdUtils.Ethereum()].executor       = IExecutor(Ethereum.OBEX_PROXY);
+        chainData[ChainIdUtils.Ethereum()].executor       = IExecutor(Ethereum.PATTERN_PROXY);
         chainData[ChainIdUtils.Ethereum()].prevController = Ethereum.ALM_CONTROLLER;
         chainData[ChainIdUtils.Ethereum()].newController  = Ethereum.ALM_CONTROLLER;
 
         // DEFINE FOREIGN EXECUTORS HERE
-        // chainData[ChainIdUtils.Avalanche()].executor       = IExecutor(Avalanche.OBEX_EXECUTOR);
+        // chainData[ChainIdUtils.Avalanche()].executor       = IExecutor(Avalanche.PATTERN_EXECUTOR);
         // chainData[ChainIdUtils.Avalanche()].prevController = Avalanche.ALM_CONTROLLER;
         // chainData[ChainIdUtils.Avalanche()].newController  = Avalanche.ALM_CONTROLLER;
 
-        // chainData[ChainIdUtils.Base()].executor        = IExecutor(Base.OBEX_EXECUTOR);
-        // chainData[ChainIdUtils.Gnosis()].executor      = IExecutor(Gnosis.OBEX_EXECUTOR);
-        // chainData[ChainIdUtils.ArbitrumOne()].executor = IExecutor(Arbitrum.OBEX_EXECUTOR);
-        // chainData[ChainIdUtils.Optimism()].executor    = IExecutor(Optimism.OBEX_EXECUTOR);
-        // chainData[ChainIdUtils.Unichain()].executor    = IExecutor(Unichain.OBEX_EXECUTOR);
+        // chainData[ChainIdUtils.Base()].executor        = IExecutor(Base.PATTERN_EXECUTOR);
+        // chainData[ChainIdUtils.Gnosis()].executor      = IExecutor(Gnosis.PATTERN_EXECUTOR);
+        // chainData[ChainIdUtils.ArbitrumOne()].executor = IExecutor(Arbitrum.PATTERN_EXECUTOR);
+        // chainData[ChainIdUtils.Optimism()].executor    = IExecutor(Optimism.PATTERN_EXECUTOR);
+        // chainData[ChainIdUtils.Unichain()].executor    = IExecutor(Unichain.PATTERN_EXECUTOR);
 
         // CREATE BRIDGES HERE
 
@@ -266,7 +261,7 @@ abstract contract SpellRunner is Test {
     }
 
     function spellIdentifier(ChainId chainId) private view returns(string memory) {
-        string memory slug       = string(abi.encodePacked("Obex", chainId.toDomainString(), "_", id));
+        string memory slug       = string(abi.encodePacked("Pattern", chainId.toDomainString(), "_", id));
         string memory identifier = string(abi.encodePacked(slug, ".sol:", slug));
         return identifier;
     }
@@ -363,7 +358,7 @@ abstract contract SpellRunner is Test {
 
         // RETURN PAYLOAD ADDRESSES FROM THE MAINNET SPELL HERE
 
-        ObexPayloadEthereum spell = ObexPayloadEthereum(chainData[ChainIdUtils.Ethereum()].payload);
+        PatternPayloadEthereum spell = PatternPayloadEthereum(chainData[ChainIdUtils.Ethereum()].payload);
         // if (chainId == ChainIdUtils.Avalanche()) {
         //     revert("Unsupported chainId");
             // return spell.PAYLOAD_AVALANCHE();
@@ -390,15 +385,15 @@ abstract contract SpellRunner is Test {
         bytes32 bytecodeHash = payloadAddress.codehash;
 
         vm.prank(Ethereum.PAUSE_PROXY);
-        IStarGuardLike(Ethereum.OBEX_STAR_GUARD).plot({
+        IStarGuardLike(Ethereum.PATTERN_STAR_GUARD).plot({
             addr_ : payloadAddress,
             tag_  : bytecodeHash
-        });        
-        
-        address payload = IStarGuardLike(Ethereum.OBEX_STAR_GUARD).exec();
+        });
+
+        address payload = IStarGuardLike(Ethereum.PATTERN_STAR_GUARD).exec();
 
         require(payload == payloadAddress, "FAILED TO EXECUTE PAYLOAD");
-        
+
         chainData[ChainIdUtils.Ethereum()].spellExecuted = true;
     }
 

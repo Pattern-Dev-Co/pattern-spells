@@ -1,25 +1,22 @@
 // SPDX-License-Identifier: AGPL-3.0
 pragma solidity 0.8.25;
 
-import { ObexPayloadEthereum } from "src/libraries/ObexPayloadEthereum.sol";
+import { PatternPayloadEthereum } from "src/libraries/PatternPayloadEthereum.sol";
 
-import { Ethereum } from "lib/obex-address-registry/src/Ethereum.sol";
+import { Ethereum } from "lib/pattern-address-registry/src/Ethereum.sol";
 
-import { MainnetControllerInit, ControllerInstance } from "lib/obex-alm-controller/deploy/MainnetControllerInit.sol";
+import { MainnetControllerInit, ControllerInstance } from "lib/pattern-alm-controller/deploy/MainnetControllerInit.sol";
 
 /**
- * @title    November 13, 2025 Obex Ethereum Proposal
- * @notice Activate Obex Liquidity Layer - initiate ALM system, set rate limits, onboard SyrupUSDC
- * @author Obex Labs
- * Forum Post: https://forum.sky.money/t/proposed-changes-to-launch-agent-4-obex-for-upcoming-spell/27370
- * Vote Link:  https://vote.sky.money/executive/template-executive-vote-allocator-4-technical-launch-monthly-settlement-cycle-for-september-2025-ranked-delegate-compensation-atlas-core-development-compensation-execute-prime-agent-proxy-spells-october-16-2025
+ * @title    April 23, 2026 Pattern Ethereum Proposal
+ * @notice Activate Pattern Liquidity Layer - initiate ALM system, set rate limits, onboard SyrupUSDC
+ * @author Pattern Labs
+ * Forum Post: TODO:
+ * Vote Link:  TODO:
  */
-contract ObexEthereum_20251113 is ObexPayloadEthereum {
+contract PatternEthereum_20260423 is PatternPayloadEthereum {
 
     address public constant SYRUP_USDC_VAULT = 0x80ac24aA929eaF5013f6436cdA2a7ba190f5Cc0b;
-
-    /// @notice Ozone OEA Relayer Atlas Link: https://sky-atlas.io/#A.6.1.1.5.2.6.1.2.1.2.2.2.1
-    address public constant OZONE_OEA_RELAYER = 0x2b1D60B11B7015fB83361a219BE01B7564436054;
 
     uint256 internal constant INITIAL_USDS_MINT_MAX   = 100_000_000e18;
     uint256 internal constant INITIAL_USDS_MINT_SLOPE = 50_000_000e18 / uint256(1 days);
@@ -40,9 +37,8 @@ contract ObexEthereum_20251113 is ObexPayloadEthereum {
     }
 
     function _initiateAlmSystem() private {
-        address[] memory relayers = new address[](2);
+        address[] memory relayers = new address[](1);
         relayers[0] = Ethereum.ALM_RELAYER;
-        relayers[1] = OZONE_OEA_RELAYER;
 
         MainnetControllerInit.initAlmSystem({
             vault: Ethereum.ALLOCATOR_VAULT,
@@ -53,12 +49,12 @@ contract ObexEthereum_20251113 is ObexPayloadEthereum {
                 rateLimits : Ethereum.ALM_RATE_LIMITS
             }),
             configAddresses: MainnetControllerInit.ConfigAddressParams({
-                freezer       : Ethereum.ALM_FREEZER, 
-                relayers      : relayers, 
+                freezer       : Ethereum.ALM_FREEZER,
+                relayers      : relayers,
                 oldController : address(0)
             }),
             checkAddresses: MainnetControllerInit.CheckAddressParams({
-                admin      : Ethereum.OBEX_PROXY,
+                admin      : Ethereum.PATTERN_PROXY,
                 proxy      : Ethereum.ALM_PROXY,
                 rateLimits : Ethereum.ALM_RATE_LIMITS,
                 vault      : Ethereum.ALLOCATOR_VAULT,
@@ -89,7 +85,7 @@ contract ObexEthereum_20251113 is ObexPayloadEthereum {
             depositMax:     INITIAL_SYRUP_USDC_DEPOSIT_MAX,
             depositSlope:   INITIAL_SYRUP_USDC_DEPOSIT_SLOPE,
             redeemMax:      INITIAL_SYRUP_USDC_REDEEM_MAX,
-            redeemSlope:    0 
+            redeemSlope:    0
          });
     }
 }
