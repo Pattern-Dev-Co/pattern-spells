@@ -24,7 +24,7 @@ abstract contract PatternPayloadEthereum {
      * @return result The result of the check (true = executable, false = not)
      */
     function isExecutable() external pure returns (bool result) {
-        result = true;  // TODO Change this
+        result = true;
     }
 
     function _execute() internal virtual;
