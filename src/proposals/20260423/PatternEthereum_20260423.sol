@@ -11,7 +11,7 @@ import { MainnetControllerInit, ControllerInstance } from "lib/pattern-alm-contr
  * @title    April 23, 2026 Pattern Ethereum Proposal
  * @notice Activate Pattern Liquidity Layer - initiate ALM system, set rate limits, onboard SyrupUSDC
  * @author Pattern Labs
- * Forum Post: TODO:
+ * Forum Post: https://forum.skyeco.com/t/proposed-changes-to-pattern-for-upcoming-spell/27835
  * Vote Link:  TODO:
  */
 contract PatternEthereum_20260423 is PatternPayloadEthereum {
@@ -31,8 +31,20 @@ contract PatternEthereum_20260423 is PatternPayloadEthereum {
 
 
     function _execute() internal override {
+
+        // Initialize ALM System
+        // Forum: https://forum.skyeco.com/t/proposed-changes-to-pattern-for-upcoming-spell/27835
+        // Poll: TODO:
         _initiateAlmSystem();
+
+        // Initialize ALM System (USDS Mint and USDS to USDC Conversion)
+        // Forum: https://forum.skyeco.com/t/proposed-changes-to-pattern-for-upcoming-spell/27835
+        // Poll: TODO:
         _setupBasicRateLimits();
+
+        // Onboard Syrup USDC Vault (Deposit and Redeem)
+        // Forum: https://forum.skyeco.com/t/proposed-changes-to-pattern-for-upcoming-spell/27835
+        // Poll: TODO:
         _onboardSyrupUSDCVault();
     }
 
