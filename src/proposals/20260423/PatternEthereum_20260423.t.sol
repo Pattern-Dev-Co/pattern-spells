@@ -126,7 +126,7 @@ contract PatternEthereum_20260423Test is PatternTestBase {
     }
 
     function setUp() public {
-        // April 6, 2026
+        // April 7, 2026
         setupMainnetDomain({ mainnetForkBlock: 24825005 });
         _setupAddresses();
 
