@@ -222,7 +222,7 @@ contract PatternEthereum_20260423Test is PatternTestBase {
         _assertRateLimit({
             key: RateLimitHelpers.makeAssetKey(
                 controller.LIMIT_4626_DEPOSIT(),
-                PATTERN_SPELL.SYRUP_USDC_VAULT()
+                Ethereum.SYRUP_USDC
             ),
             maxAmount: 0,
             slope: 0,
@@ -232,7 +232,7 @@ contract PatternEthereum_20260423Test is PatternTestBase {
         _assertRateLimit({
             key: RateLimitHelpers.makeAssetKey(
                 controller.LIMIT_MAPLE_REDEEM(),
-                PATTERN_SPELL.SYRUP_USDC_VAULT()
+                Ethereum.SYRUP_USDC
             ),
             maxAmount: 0,
             slope: 0,
@@ -244,7 +244,7 @@ contract PatternEthereum_20260423Test is PatternTestBase {
         _assertRateLimit({
             key: RateLimitHelpers.makeAssetKey(
                 controller.LIMIT_4626_DEPOSIT(),
-                PATTERN_SPELL.SYRUP_USDC_VAULT()
+                Ethereum.SYRUP_USDC
             ),
             maxAmount: 100_000_000e6,
             slope: 20_000_000e6 / uint256(1 days),
@@ -254,7 +254,7 @@ contract PatternEthereum_20260423Test is PatternTestBase {
         _assertRateLimit({
             key: RateLimitHelpers.makeAssetKey(
                 controller.LIMIT_MAPLE_REDEEM(),
-                PATTERN_SPELL.SYRUP_USDC_VAULT()
+                Ethereum.SYRUP_USDC
             ),
             maxAmount: type(uint256).max,
             slope: 0,
@@ -278,7 +278,7 @@ contract PatternEthereum_20260423Test is PatternTestBase {
         executeMainnetPayload();
 
         // Whitelist ALM_PROXY with Maple permission manager
-        address poolManager = IPoolManagerLike(PATTERN_SPELL.SYRUP_USDC_VAULT()).manager();
+        address poolManager = IPoolManagerLike(Ethereum.SYRUP_USDC).manager();
         address poolDelegate = IMaplePoolManagerLike(poolManager).poolDelegate();
 
         address[] memory lenders  = new address[](1);
@@ -306,15 +306,15 @@ contract PatternEthereum_20260423Test is PatternTestBase {
         vm.startPrank(Ethereum.ALM_RELAYER);
         controller.mintUSDS(100_000_000e18);
         controller.swapUSDSToUSDC(100_000_000e6);
-        controller.depositERC4626(PATTERN_SPELL.SYRUP_USDC_VAULT(), 100_000_000e6);
+        controller.depositERC4626(Ethereum.SYRUP_USDC, 100_000_000e6);
 
 
         // Verify the allocation worked
-        assertGt(IERC20(PATTERN_SPELL.SYRUP_USDC_VAULT()).balanceOf(Ethereum.ALM_PROXY), 0, "should have SyrupUSDC shares");
+        assertGt(IERC20(Ethereum.SYRUP_USDC).balanceOf(Ethereum.ALM_PROXY), 0, "should have SyrupUSDC shares");
         vm.warp(block.timestamp + 10 days);
         controller.mintUSDS(100_000_000e18);
         // controller.swapUSDSToUSDC(100_000_000e6);
-        // controller.depositERC4626(PATTERN_SPELL.SYRUP_USDC_VAULT(), 100_000_000e6);
+        // controller.depositERC4626(Ethereum.SYRUP_USDC, 100_000_000e6);
         vm.stopPrank();
     }
 
@@ -334,7 +334,7 @@ contract PatternEthereum_20260423Test is PatternTestBase {
         executeMainnetPayload();
 
         // Whitelist ALM_PROXY with Maple permission manager
-        address poolManager = IPoolManagerLike(PATTERN_SPELL.SYRUP_USDC_VAULT()).manager();
+        address poolManager = IPoolManagerLike(Ethereum.SYRUP_USDC).manager();
         address poolDelegate = IMaplePoolManagerLike(poolManager).poolDelegate();
 
         address[] memory lenders  = new address[](1);
@@ -362,15 +362,15 @@ contract PatternEthereum_20260423Test is PatternTestBase {
         vm.startPrank(Ethereum.ALM_RELAYER);
         controller.mintUSDS(100_000_000e18);
         controller.swapUSDSToUSDC(100_000_000e6);
-        uint256 shares = controller.depositERC4626(PATTERN_SPELL.SYRUP_USDC_VAULT(), 100_000_000e6);
+        uint256 shares = controller.depositERC4626(Ethereum.SYRUP_USDC, 100_000_000e6);
         assertGt(shares, 0, "should have SyrupUSDC shares");
 
-        address manager = IPoolManagerLike(PATTERN_SPELL.SYRUP_USDC_VAULT()).manager();
-        uint256 withdrawalManagerSharesBefore = IERC20(PATTERN_SPELL.SYRUP_USDC_VAULT()).balanceOf(IPoolManagerLike(manager).withdrawalManager());
+        address manager = IPoolManagerLike(Ethereum.SYRUP_USDC).manager();
+        uint256 withdrawalManagerSharesBefore = IERC20(Ethereum.SYRUP_USDC).balanceOf(IPoolManagerLike(manager).withdrawalManager());
 
-        controller.requestMapleRedemption(PATTERN_SPELL.SYRUP_USDC_VAULT(), shares);
-        assertEq(IERC20(PATTERN_SPELL.SYRUP_USDC_VAULT()).balanceOf(Ethereum.ALM_PROXY), 0, "should have no SyrupUSDC shares");
-        assertEq(IERC20(PATTERN_SPELL.SYRUP_USDC_VAULT()).balanceOf(IPoolManagerLike(manager).withdrawalManager()), withdrawalManagerSharesBefore + shares, "should have SyrupUSDC shares in withdrawal manager");
+        controller.requestMapleRedemption(Ethereum.SYRUP_USDC, shares);
+        assertEq(IERC20(Ethereum.SYRUP_USDC).balanceOf(Ethereum.ALM_PROXY), 0, "should have no SyrupUSDC shares");
+        assertEq(IERC20(Ethereum.SYRUP_USDC).balanceOf(IPoolManagerLike(manager).withdrawalManager()), withdrawalManagerSharesBefore + shares, "should have SyrupUSDC shares in withdrawal manager");
         vm.stopPrank();
 
         address USDC = Ethereum.USDC;

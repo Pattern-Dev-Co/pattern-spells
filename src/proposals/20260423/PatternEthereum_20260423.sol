@@ -16,8 +16,6 @@ import { MainnetControllerInit, ControllerInstance } from "lib/pattern-alm-contr
  */
 contract PatternEthereum_20260423 is PatternPayloadEthereum {
 
-    address public constant SYRUP_USDC_VAULT = Ethereum.SYRUP_USDC;
-
     uint256 internal constant INITIAL_USDS_MINT_MAX   = 100_000_000e18;
     uint256 internal constant INITIAL_USDS_MINT_SLOPE = 50_000_000e18 / uint256(1 days);
 
@@ -93,7 +91,7 @@ contract PatternEthereum_20260423 is PatternPayloadEthereum {
 
     function _onboardSyrupUSDCVault() private {
          _onboardSyrupUSDCVault({
-            syrupUSDCVault: SYRUP_USDC_VAULT,
+            syrupUSDCVault: Ethereum.SYRUP_USDC,
             depositMax:     INITIAL_SYRUP_USDC_DEPOSIT_MAX,
             depositSlope:   INITIAL_SYRUP_USDC_DEPOSIT_SLOPE,
             redeemMax:      INITIAL_SYRUP_USDC_REDEEM_MAX,
