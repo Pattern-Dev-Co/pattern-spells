@@ -18,6 +18,8 @@ import { AllocatorVault }  from 'dss-allocator/src/AllocatorVault.sol';
 
 import { PatternEthereum_20260423 as PatternSpell } from "./PatternEthereum_20260423.sol";
 
+import { ChainIdUtils } from "../../libraries/ChainId.sol";
+
 interface IInvestmentManager {
     function fulfillCancelDepositRequest(
         uint64 poolId,
@@ -120,19 +122,20 @@ contract PatternEthereum_20260423Test is PatternTestBase {
     }
 
     function _setupAddresses() internal virtual {
-        DEPLOYER = makeAddr("DEPLOYER");
-        vm.prank(DEPLOYER);
-        PATTERN_SPELL = new PatternSpell();
+        DEPLOYER      = 0x86865836187fD889B7AE65027056F3Fb43312018;
+        PATTERN_SPELL = PatternSpell(0x31831aE3C13f72afcCcf0aAF49b6f9319ed9C4C0);
     }
 
     function setUp() public {
-        // April 7, 2026
-        setupMainnetDomain({ mainnetForkBlock: 24825005 });
+        // April 15, 2026
+        setupMainnetDomain({ mainnetForkBlock: 24887533 });
         _setupAddresses();
 
         vm.startPrank(Ethereum.PAUSE_PROXY);
         IPSMLike(address(controller.psm())).kiss(address(almProxy));
         vm.stopPrank();
+
+        chainData[ChainIdUtils.Ethereum()].payload = address(PATTERN_SPELL);
     }
 
     function test_almSystemDeployment() public view {
