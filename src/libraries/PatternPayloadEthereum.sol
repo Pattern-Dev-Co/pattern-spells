@@ -1,18 +1,18 @@
 // SPDX-License-Identifier: AGPL-3.0
 pragma solidity ^0.8.0;
 
-import { Ethereum } from "lib/obex-address-registry/src/Ethereum.sol";
+import { Ethereum } from "lib/pattern-address-registry/src/Ethereum.sol";
 
 import { IExecutor } from "lib/obex-gov-relay/src/interfaces/IExecutor.sol";
 
-import { ObexLiquidityLayerHelpers } from "./ObexLiquidityLayerHelpers.sol";
+import { PatternLiquidityLayerHelpers } from "./PatternLiquidityLayerHelpers.sol";
 
 /**
  * @dev Base smart contract for Ethereum.
- * @author Obex Labs
+ * @author Pattern Labs
  * @author Forked from Steakhouse Financial
  */
-abstract contract ObexPayloadEthereum {
+abstract contract PatternPayloadEthereum {
 
     function execute() external {
         _execute();
@@ -24,7 +24,7 @@ abstract contract ObexPayloadEthereum {
      * @return result The result of the check (true = executable, false = not)
      */
     function isExecutable() external pure returns (bool result) {
-        result = true;  // TODO Change this
+        result = true;
     }
 
     function _execute() internal virtual;
@@ -52,7 +52,7 @@ abstract contract ObexPayloadEthereum {
     }
 
     function _onboardERC4626Vault(address vault, uint256 depositMax, uint256 depositSlope) internal {
-        ObexLiquidityLayerHelpers.onboardERC4626Vault(
+        PatternLiquidityLayerHelpers.onboardERC4626Vault(
             Ethereum.ALM_RATE_LIMITS,
             vault,
             depositMax,
@@ -67,7 +67,7 @@ abstract contract ObexPayloadEthereum {
         uint256 depositSlope,
         uint256 redeemMax,
         uint256 redeemSlope) internal {
-        ObexLiquidityLayerHelpers.onboardSyrupUSDCVault({
+        PatternLiquidityLayerHelpers.onboardSyrupUSDCVault({
             rateLimits:     Ethereum.ALM_RATE_LIMITS,
             syrupUSDCVault: syrupUSDCVault,
             depositMax:     depositMax,
@@ -79,7 +79,7 @@ abstract contract ObexPayloadEthereum {
 
 
     function _setUSDSMintRateLimit(uint256 maxAmount, uint256 slope) internal {
-        ObexLiquidityLayerHelpers.setUSDSMintRateLimit(
+        PatternLiquidityLayerHelpers.setUSDSMintRateLimit(
             Ethereum.ALM_RATE_LIMITS,
             maxAmount,
             slope
@@ -87,7 +87,7 @@ abstract contract ObexPayloadEthereum {
     }
 
     function _setUSDSToUSDCRateLimit(uint256 maxAmount, uint256 slope) internal {
-        ObexLiquidityLayerHelpers.setUSDSToUSDCRateLimit(
+        PatternLiquidityLayerHelpers.setUSDSToUSDCRateLimit(
             Ethereum.ALM_RATE_LIMITS,
             maxAmount,
             slope

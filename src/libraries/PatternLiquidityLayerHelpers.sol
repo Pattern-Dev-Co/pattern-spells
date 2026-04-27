@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: AGPL-3.0
 pragma solidity ^0.8.0;
 
-import { RateLimitHelpers } from "obex-alm-controller/src/RateLimitHelpers.sol";
+import { RateLimitHelpers } from "pattern-alm-controller/src/RateLimitHelpers.sol";
 
-import { IRateLimits } from "obex-alm-controller/src/interfaces/IRateLimits.sol";
+import { IRateLimits } from "pattern-alm-controller/src/interfaces/IRateLimits.sol";
 
 /**
- * @notice Helper functions for Obex Liquidity Layer
+ * @notice Helper functions for Pattern Liquidity Layer
  */
-library ObexLiquidityLayerHelpers {
+library PatternLiquidityLayerHelpers {
 
     bytes32 public constant LIMIT_4626_DEPOSIT  = keccak256("LIMIT_4626_DEPOSIT");
     bytes32 public constant LIMIT_4626_WITHDRAW = keccak256("LIMIT_4626_WITHDRAW");

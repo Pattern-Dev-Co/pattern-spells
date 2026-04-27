@@ -5,20 +5,20 @@ import { IERC4626 } from "forge-std/interfaces/IERC4626.sol";
 
 // import { CCTPForwarder } from "lib/xchain-helpers/src/forwarders/CCTPForwarder.sol";
 
-import { Ethereum }  from "obex-address-registry/Ethereum.sol";
+import { Ethereum }  from "pattern-address-registry/Ethereum.sol";
 
-import { IALMProxy }         from "obex-alm-controller/src/interfaces/IALMProxy.sol";
-import { IRateLimits }       from "obex-alm-controller/src/interfaces/IRateLimits.sol";
-import { MainnetController } from "obex-alm-controller/src/MainnetController.sol";
-import { RateLimitHelpers }  from "obex-alm-controller/src/RateLimitHelpers.sol";
+import { IALMProxy }         from "pattern-alm-controller/src/interfaces/IALMProxy.sol";
+import { IRateLimits }       from "pattern-alm-controller/src/interfaces/IRateLimits.sol";
+import { MainnetController } from "pattern-alm-controller/src/MainnetController.sol";
+import { RateLimitHelpers }  from "pattern-alm-controller/src/RateLimitHelpers.sol";
 
-import { ObexLiquidityLayerHelpers } from "src/libraries/ObexLiquidityLayerHelpers.sol";
+import { PatternLiquidityLayerHelpers } from "src/libraries/PatternLiquidityLayerHelpers.sol";
 
 import { ChainId, ChainIdUtils } from "../libraries/ChainId.sol";
 
 import { SpellRunner } from "./SpellRunner.sol";
 
-struct ObexLiquidityLayerContext {
+struct PatternLiquidityLayerContext {
     address     controller;
     IALMProxy   proxy;
     IRateLimits rateLimits;
@@ -67,9 +67,9 @@ interface IPoolManager {
 }
 
 
-abstract contract ObexLiquidityLayerTests is SpellRunner {
+abstract contract PatternLiquidityLayerTests is SpellRunner {
 
-    function _getObexLiquidityLayerContext(ChainId chain) internal view returns(ObexLiquidityLayerContext memory ctx) {
+    function _getPatternLiquidityLayerContext(ChainId chain) internal view returns(PatternLiquidityLayerContext memory ctx) {
         address controller;
         if(chainData[chain].spellExecuted) {
             controller = chainData[chain].newController;
@@ -77,7 +77,7 @@ abstract contract ObexLiquidityLayerTests is SpellRunner {
             controller = chainData[chain].prevController;
         }
         if (chain == ChainIdUtils.Ethereum()) {
-            ctx = ObexLiquidityLayerContext(
+            ctx = PatternLiquidityLayerContext(
                 controller,
                 IALMProxy(Ethereum.ALM_PROXY),
                 IRateLimits(Ethereum.ALM_RATE_LIMITS),
@@ -85,14 +85,14 @@ abstract contract ObexLiquidityLayerTests is SpellRunner {
                 Ethereum.ALM_FREEZER
         );
         } else {
-            revert("Chain not supported by ObexLiquidityLayerTests context");
+            revert("Chain not supported by PatternLiquidityLayerTests context");
         }
     }
 
-    function _getObexLiquidityLayerContext() internal view returns(ObexLiquidityLayerContext memory) {
-        return _getObexLiquidityLayerContext(ChainIdUtils.fromUint(block.chainid));
+    function _getPatternLiquidityLayerContext() internal view returns(PatternLiquidityLayerContext memory) {
+        return _getPatternLiquidityLayerContext(ChainIdUtils.fromUint(block.chainid));
     }
-   
+
    function _assertRateLimit(
        bytes32 key,
        uint256 maxAmount,
@@ -106,7 +106,7 @@ abstract contract ObexLiquidityLayerTests is SpellRunner {
        uint256 slope,
        string memory message
     ) internal view {
-        IRateLimits.RateLimitData memory rateLimit = _getObexLiquidityLayerContext().rateLimits.getRateLimitData(key);
+        IRateLimits.RateLimitData memory rateLimit = _getPatternLiquidityLayerContext().rateLimits.getRateLimitData(key);
         assertEq(rateLimit.maxAmount, maxAmount, message);
         assertEq(rateLimit.slope,     slope, message);
     }
@@ -114,7 +114,7 @@ abstract contract ObexLiquidityLayerTests is SpellRunner {
    function _assertUnlimitedRateLimit(
        bytes32 key
     ) internal view {
-        IRateLimits.RateLimitData memory rateLimit = _getObexLiquidityLayerContext().rateLimits.getRateLimitData(key);
+        IRateLimits.RateLimitData memory rateLimit = _getPatternLiquidityLayerContext().rateLimits.getRateLimitData(key);
         assertEq(rateLimit.maxAmount, type(uint256).max);
         assertEq(rateLimit.slope,     0);
     }
@@ -122,7 +122,7 @@ abstract contract ObexLiquidityLayerTests is SpellRunner {
     function _assertZeroRateLimit(
         bytes32 key
     ) internal view {
-        IRateLimits.RateLimitData memory rateLimit = _getObexLiquidityLayerContext().rateLimits.getRateLimitData(key);
+        IRateLimits.RateLimitData memory rateLimit = _getPatternLiquidityLayerContext().rateLimits.getRateLimitData(key);
         assertEq(rateLimit.maxAmount, 0);
         assertEq(rateLimit.slope,     0);
     }
@@ -134,7 +134,7 @@ abstract contract ObexLiquidityLayerTests is SpellRunner {
        uint256 lastAmount,
        uint256 lastUpdated
     ) internal view {
-        IRateLimits.RateLimitData memory rateLimit = _getObexLiquidityLayerContext().rateLimits.getRateLimitData(key);
+        IRateLimits.RateLimitData memory rateLimit = _getPatternLiquidityLayerContext().rateLimits.getRateLimitData(key);
         assertEq(rateLimit.maxAmount,   maxAmount);
         assertEq(rateLimit.slope,       slope);
         assertEq(rateLimit.lastAmount,  lastAmount);
@@ -147,17 +147,17 @@ abstract contract ObexLiquidityLayerTests is SpellRunner {
         uint256 depositMax,
         uint256 depositSlope
     ) internal {
-        ObexLiquidityLayerContext memory ctx = _getObexLiquidityLayerContext();
+        PatternLiquidityLayerContext memory ctx = _getPatternLiquidityLayerContext();
         bool unlimitedDeposit = depositMax == type(uint256).max;
 
         // Note: ERC4626 signature is the same for mainnet and foreign
         deal(IERC4626(vault).asset(), address(ctx.proxy), expectedDepositAmount);
         bytes32 depositKey = RateLimitHelpers.makeAssetKey(
-            ObexLiquidityLayerHelpers.LIMIT_4626_DEPOSIT,
+            PatternLiquidityLayerHelpers.LIMIT_4626_DEPOSIT,
             vault
         );
         bytes32 withdrawKey = RateLimitHelpers.makeAssetKey(
-            ObexLiquidityLayerHelpers.LIMIT_4626_WITHDRAW,
+            PatternLiquidityLayerHelpers.LIMIT_4626_WITHDRAW,
             vault
         );
 
@@ -171,7 +171,7 @@ abstract contract ObexLiquidityLayerTests is SpellRunner {
         executeAllPayloadsAndBridges();
 
         // Reload the context after spell execution to get the new controller after potential controller upgrade
-        ctx = _getObexLiquidityLayerContext();
+        ctx = _getPatternLiquidityLayerContext();
 
         _assertRateLimit(depositKey, depositMax, depositSlope);
         _assertRateLimit(withdrawKey, type(uint256).max, 0);
@@ -211,15 +211,15 @@ abstract contract ObexLiquidityLayerTests is SpellRunner {
         }
     }
 
-    
 
-    
+
+
 
 
     // function _testControllerUpgrade(address oldController, address newController) internal {
     //     ChainId currentChain = ChainIdUtils.fromUint(block.chainid);
 
-    //     ObexLiquidityLayerContext memory ctx = _getObexLiquidityLayerContext();
+    //     PatternLiquidityLayerContext memory ctx = _getPatternLiquidityLayerContext();
 
     //     // Note the functions used are interchangable with mainnet and foreign controllers
     //     MainnetController controller = MainnetController(newController);
@@ -244,9 +244,9 @@ abstract contract ObexLiquidityLayerTests is SpellRunner {
     //     }
 
     //     if (currentChain == ChainIdUtils.Ethereum()) {
-    //         assertEq(controller.centrifugeRecipients(ObexLiquidityLayerHelpers.AVALANCHE_DESTINATION_CENTRIFUGE_ID), bytes32(uint256(uint160(address(0)))));
+    //         assertEq(controller.centrifugeRecipients(PatternLiquidityLayerHelpers.AVALANCHE_DESTINATION_CENTRIFUGE_ID), bytes32(uint256(uint160(address(0)))));
     //     } else {
-    //         assertEq(controller.centrifugeRecipients(ObexLiquidityLayerHelpers.ETHEREUM_DESTINATION_CENTRIFUGE_ID), bytes32(uint256(uint160(address(0)))));
+    //         assertEq(controller.centrifugeRecipients(PatternLiquidityLayerHelpers.ETHEREUM_DESTINATION_CENTRIFUGE_ID), bytes32(uint256(uint160(address(0)))));
     //     }
 
     //     executeAllPayloadsAndBridges();
@@ -267,9 +267,9 @@ abstract contract ObexLiquidityLayerTests is SpellRunner {
     //     }
 
     //     if (currentChain == ChainIdUtils.Ethereum()) {
-    //         assertEq(controller.centrifugeRecipients(ObexLiquidityLayerHelpers.AVALANCHE_DESTINATION_CENTRIFUGE_ID), bytes32(uint256(uint160(Avalanche.ALM_PROXY))));
+    //         assertEq(controller.centrifugeRecipients(PatternLiquidityLayerHelpers.AVALANCHE_DESTINATION_CENTRIFUGE_ID), bytes32(uint256(uint160(Avalanche.ALM_PROXY))));
     //     } else {
-    //         assertEq(controller.centrifugeRecipients(ObexLiquidityLayerHelpers.ETHEREUM_DESTINATION_CENTRIFUGE_ID), bytes32(uint256(uint160(Ethereum.ALM_PROXY))));
+    //         assertEq(controller.centrifugeRecipients(PatternLiquidityLayerHelpers.ETHEREUM_DESTINATION_CENTRIFUGE_ID), bytes32(uint256(uint160(Ethereum.ALM_PROXY))));
     //     }
     // }
 
