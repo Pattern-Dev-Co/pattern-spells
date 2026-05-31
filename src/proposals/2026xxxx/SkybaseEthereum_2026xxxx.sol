@@ -8,7 +8,7 @@ import { Ethereum } from "skybase-address-registry/Ethereum.sol";
 import { SkybasePayloadEthereum } from "src/libraries/SkybasePayloadEthereum.sol";
 
 /**
- * @title   June 18, 2026 Skybase Ethereum Proposal
+ * @title   XXXX XX, 2026 Skybase Ethereum Proposal
  * @notice  Transfer excess USDS from the Skybase proxy.
  * @author  Soter Labs
  */
