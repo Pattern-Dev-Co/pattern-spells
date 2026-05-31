@@ -1,10 +1,10 @@
-#  Pattern Spells
+#  Skybase Spells
 
-**Governance Spells for Pattern**
+**Governance Spells for Skybase**
 
 ## ✨ Spells
 
-The latest spells can be found in the `src/proposals/` directory. Spells are organized by date in YYYYMMDD format, with separate files for each network (e.g., `PatternEthereum_20260423.sol`).
+The latest spells can be found in the `src/proposals/` directory. Spells are organized by date in YYYYMMDD format, with separate files for each network (e.g., `SkybaseEthereum_2026xxxx.sol`).
 
 ## Usage
 

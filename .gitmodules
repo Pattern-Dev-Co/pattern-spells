@@ -7,12 +7,9 @@
 [submodule "lib/dss-allocator"]
 	path = lib/dss-allocator
 	url = https://github.com/makerdao/dss-allocator
-[submodule "lib/obex-gov-relay"]
-	path = lib/obex-gov-relay
-	url = https://github.com/obex-incubator/obex-gov-relay
-[submodule "lib/pattern-address-registry"]
-	path = lib/pattern-address-registry
-	url = https://github.com/Pattern-Dev-Co/pattern-address-registry
-[submodule "lib/pattern-alm-controller"]
-	path = lib/pattern-alm-controller
-	url = https://github.com/Pattern-Dev-Co/pattern-alm-controller
+[submodule "lib/skybase-address-registry"]
+	path = lib/skybase-address-registry
+	url = https://github.com/skybase-foundation/skybase-address-registry
+[submodule "lib/openzeppelin-contracts"]
+	path = lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts
