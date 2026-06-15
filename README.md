@@ -4,7 +4,7 @@
 
 ## ✨ Spells
 
-The latest spells can be found in the `src/proposals/` directory. Spells are organized by date in YYYYMMDD format, with separate files for each network (e.g., `SkybaseEthereum_2026xxxx.sol`).
+The latest spells can be found in the `src/proposals/` directory. Spells are organized by date in YYYYMMDD format, with separate files for each network (e.g., `SkybaseEthereum_20260702.sol`).
 
 ## Usage
 

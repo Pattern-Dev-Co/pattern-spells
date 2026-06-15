@@ -9,16 +9,16 @@ import { Ethereum } from "skybase-address-registry/Ethereum.sol";
 
 import { IStarGuardLike } from "src/interfaces/Interfaces.sol";
 
-import { SkybaseEthereum_2026xxxx } from "./SkybaseEthereum_2026xxxx.sol";
+import { SkybaseEthereum_20260702 } from "./SkybaseEthereum_20260702.sol";
 
-contract SkybaseEthereum_2026xxxxTest is Test {
+contract SkybaseEthereum_20260702Test is Test {
 
-    SkybaseEthereum_2026xxxx internal spell;
+    SkybaseEthereum_20260702 internal spell;
 
     function setUp() public {
         vm.createSelectFork(vm.rpcUrl("mainnet"), 24_887_533);
 
-        spell = new SkybaseEthereum_2026xxxx();
+        spell = new SkybaseEthereum_20260702();
 
         deal(Ethereum.USDS, Ethereum.SKYBASE_PROXY, spell.USDS_TRANSFER_AMOUNT());
     }
