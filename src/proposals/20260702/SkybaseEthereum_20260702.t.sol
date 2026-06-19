@@ -22,11 +22,15 @@ contract SkybaseEthereum_20260702Test is SkybaseTestBase {
         setupMainnetDomain(25_350_201);
     }
 
+    function test_isExecutable() public view {
+        assertTrue(SkybaseEthereum_20260702(mainnet.payload).isExecutable(), "payload-not-executable");
+    }
+
     function test_usdsTransfer() public {
         SkybaseEthereum_20260702 spell = SkybaseEthereum_20260702(mainnet.payload);
 
         address recipient = Ethereum.SKYBASE_FOUNDATION_OPERATIONAL_MULTISIG;
-        uint256 amount      = spell.USDS_TRANSFER_AMOUNT();
+        uint256 amount    = spell.USDS_TRANSFER_AMOUNT();
 
         uint256 recipientBalanceBefore = IERC20(Ethereum.USDS).balanceOf(recipient);
         uint256 proxyBalanceBefore     = IERC20(Ethereum.USDS).balanceOf(sender);

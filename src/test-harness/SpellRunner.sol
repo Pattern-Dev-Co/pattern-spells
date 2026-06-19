@@ -11,6 +11,8 @@ import { Domain, DomainHelpers } from "xchain-helpers/testing/Domain.sol";
 
 import { IStarGuardLike } from "src/interfaces/Interfaces.sol";
 
+import { SkybasePayloadEthereum } from "src/libraries/SkybasePayloadEthereum.sol";
+
 abstract contract SpellRunner is Test {
     using DomainHelpers for Domain;
     using DomainHelpers for StdChains.Chain;
@@ -58,6 +60,7 @@ abstract contract SpellRunner is Test {
 
         address payloadAddress = mainnet.payload;
         require(_isContract(payloadAddress), "PAYLOAD IS NOT A CONTRACT");
+        require(SkybasePayloadEthereum(payloadAddress).isExecutable(), "MAINNET PAYLOAD IS NOT EXECUTABLE");
 
         bytes32 bytecodeHash = payloadAddress.codehash;
 
