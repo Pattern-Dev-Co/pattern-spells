@@ -24,7 +24,7 @@ contract SkybaseEthereum_20260702Test is Test {
     }
 
     function test_usdsTransfer() public {
-        address recipient = spell.SKYBASE_FOUNDATION_MULTISIG();
+        address recipient = Ethereum.SKYBASE_FOUNDATION_OPERATIONAL_MULTISIG;
         uint256 amount      = spell.USDS_TRANSFER_AMOUNT();
 
         uint256 recipientBalanceBefore = IERC20(Ethereum.USDS).balanceOf(recipient);
