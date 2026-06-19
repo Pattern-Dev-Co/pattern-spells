@@ -1,55 +1,46 @@
 // SPDX-License-Identifier: AGPL-3.0
 pragma solidity ^0.8.25;
 
-import { Test } from "forge-std/Test.sol";
-
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { IERC20 } from "forge-std/interfaces/IERC20.sol";
 
 import { Ethereum } from "skybase-address-registry/Ethereum.sol";
 
-import { IStarGuardLike } from "src/interfaces/Interfaces.sol";
+import { SkybaseTestBase } from "src/test-harness/SkybaseTestBase.sol";
 
 import { SkybaseEthereum_20260702 } from "./SkybaseEthereum_20260702.sol";
 
-contract SkybaseEthereum_20260702Test is Test {
+contract SkybaseEthereum_20260702Test is SkybaseTestBase {
 
-    SkybaseEthereum_20260702 internal spell;
+    address internal sender = Ethereum.SKYBASE_PROXY;
+
+    constructor() {
+        id = "20260702";
+    }
 
     function setUp() public {
-        vm.createSelectFork(vm.rpcUrl("mainnet"), 24_887_533);
-
-        spell = new SkybaseEthereum_20260702();
-
-        deal(Ethereum.USDS, Ethereum.SKYBASE_PROXY, spell.USDS_TRANSFER_AMOUNT());
+        // April 16, 2026
+        setupMainnetDomain(24_887_533);
     }
 
     function test_usdsTransfer() public {
+        SkybaseEthereum_20260702 spell = SkybaseEthereum_20260702(mainnet.payload);
+
         address recipient = Ethereum.SKYBASE_FOUNDATION_OPERATIONAL_MULTISIG;
         uint256 amount      = spell.USDS_TRANSFER_AMOUNT();
 
         uint256 recipientBalanceBefore = IERC20(Ethereum.USDS).balanceOf(recipient);
-        uint256 proxyBalanceBefore     = IERC20(Ethereum.USDS).balanceOf(Ethereum.SKYBASE_PROXY);
+        uint256 proxyBalanceBefore     = IERC20(Ethereum.USDS).balanceOf(sender);
 
-        bytes32 bytecodeHash = address(spell).codehash;
+        assertGe(proxyBalanceBefore, amount, "insufficient-skybase-proxy-usds-balance");
+        _assertSkybaseProxyUsdsBalance(proxyBalanceBefore);
 
-        vm.prank(Ethereum.PAUSE_PROXY);
-        IStarGuardLike(Ethereum.SKYBASE_STAR_GUARD).plot({
-            addr_ : address(spell),
-            tag_  : bytecodeHash
-        });
-
-        address executed = IStarGuardLike(Ethereum.SKYBASE_STAR_GUARD).exec();
-        require(executed == address(spell), "FAILED TO EXECUTE PAYLOAD");
+        executeMainnetPayload();
 
         assertEq(
             IERC20(Ethereum.USDS).balanceOf(recipient),
             recipientBalanceBefore + amount,
             "incorrect-recipient-usds-balance"
         );
-        assertEq(
-            IERC20(Ethereum.USDS).balanceOf(Ethereum.SKYBASE_PROXY),
-            proxyBalanceBefore - amount,
-            "incorrect-proxy-usds-balance"
-        );
+        _assertSkybaseProxyUsdsBalance(proxyBalanceBefore - amount);
     }
 }
