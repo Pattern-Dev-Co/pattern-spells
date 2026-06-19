@@ -18,8 +18,8 @@ contract SkybaseEthereum_20260702Test is SkybaseTestBase {
     }
 
     function setUp() public {
-        // April 16, 2026
-        setupMainnetDomain(24_887_533);
+        // June 19, 2026
+        setupMainnetDomain(25_350_201);
     }
 
     function test_usdsTransfer() public {
