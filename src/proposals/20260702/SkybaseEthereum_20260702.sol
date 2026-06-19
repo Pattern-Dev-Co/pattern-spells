@@ -9,8 +9,9 @@ import { SkybasePayloadEthereum } from "src/libraries/SkybasePayloadEthereum.sol
 
 /**
  * @title   July 02, 2026 Skybase Ethereum Proposal
- * @notice  Transfer excess USDS from the Skybase proxy.
  * @author  Soter Labs
+ * @notice  Transfer excess USDS from the Skybase proxy.
+ * Forum    https://forum.skyeco.com/t/june-4-2026-proposed-changes-to-spark-for-upcoming-spell/27931
  */
 contract SkybaseEthereum_20260702 is SkybasePayloadEthereum {
 
