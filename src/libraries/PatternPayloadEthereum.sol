@@ -10,7 +10,6 @@ import { PatternLiquidityLayerHelpers } from "./PatternLiquidityLayerHelpers.sol
 /**
  * @dev Base smart contract for Ethereum.
  * @author Pattern Labs
- * @author Forked from Steakhouse Financial
  */
 abstract contract PatternPayloadEthereum {
 
@@ -60,13 +59,13 @@ abstract contract PatternPayloadEthereum {
         );
     }
 
-
     function _onboardSyrupUSDCVault(
         address syrupUSDCVault,
         uint256 depositMax,
         uint256 depositSlope,
         uint256 redeemMax,
-        uint256 redeemSlope) internal {
+        uint256 redeemSlope
+    ) internal {
         PatternLiquidityLayerHelpers.onboardSyrupUSDCVault({
             rateLimits:     Ethereum.ALM_RATE_LIMITS,
             syrupUSDCVault: syrupUSDCVault,
@@ -76,7 +75,6 @@ abstract contract PatternPayloadEthereum {
             redeemSlope:    redeemSlope
         });
     }
-
 
     function _setUSDSMintRateLimit(uint256 maxAmount, uint256 slope) internal {
         PatternLiquidityLayerHelpers.setUSDSMintRateLimit(
@@ -93,4 +91,5 @@ abstract contract PatternPayloadEthereum {
             slope
         );
     }
+
 }
