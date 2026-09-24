@@ -19,8 +19,7 @@ import { PatternLiquidityLayerHelpers } from "src/libraries/PatternLiquidityLaye
 contract PatternEthereum_20261022 is PatternPayloadEthereum {
 
     // River offramp wallet, must equal the address hardcoded in the 20261022 test.
-    // TODO: Replace with the actual river offramp address from the Pattern-Address-Registry
-    address public constant RIVER_OFFRAMP_ADDRESS = 0x0000000000000000000000000000000000000001;
+    address public constant RIVER_OFFRAMP_ADDRESS = Ethereum.RIVER_SPV_2_OFFRAMP;
 
     function _execute() internal override {
         // Onboard River Transfer Asset

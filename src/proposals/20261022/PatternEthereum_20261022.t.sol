@@ -22,8 +22,7 @@ contract PatternEthereum_20261022Test is PatternTestBase {
     address internal DEPLOYER;
 
     // River offramp wallet, must equal the address hardcoded in the 20261022 payload.
-    // TODO: Replace with the actual river offramp address from the Pattern-Address-Registry
-    address internal constant RIVER_OFFRAMP_ADDRESS = 0x0000000000000000000000000000000000000001;
+    address internal constant RIVER_OFFRAMP_ADDRESS = Ethereum.RIVER_SPV_2_OFFRAMP;
 
     uint256 internal constant RIVER_TRANSFER_MAX   = 35_000_000e6;
     uint256 internal constant RIVER_TRANSFER_SLOPE = 10_000_000e6 / uint256(1 days);
