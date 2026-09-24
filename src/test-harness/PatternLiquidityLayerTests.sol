@@ -100,6 +100,7 @@ abstract contract PatternLiquidityLayerTests is SpellRunner {
    ) internal view {
        _assertRateLimit(key, maxAmount, slope, "");
    }
+
    function _assertRateLimit(
        bytes32 key,
        uint256 maxAmount,
@@ -139,6 +140,23 @@ abstract contract PatternLiquidityLayerTests is SpellRunner {
         assertEq(rateLimit.slope,       slope);
         assertEq(rateLimit.lastAmount,  lastAmount);
         assertEq(rateLimit.lastUpdated, lastUpdated);
+    }
+
+    /**
+     * @dev Sanity check on a stored rate limit, forked from Spark's SparkLiquidityLayerTests._checkRateLimitValue.
+     *      Reverts if a bounded limit is outside [1, 1e10] units per day for the given decimals.
+     */
+    function _checkRateLimitValue(bytes32 key, uint256 decimals) internal view {
+        IRateLimits.RateLimitData memory value = _getPatternLiquidityLayerContext().rateLimits.getRateLimitData(key);
+
+        if (value.maxAmount == type(uint256).max) return;
+        if (value.slope == 0 || value.slope == type(uint256).max) return;
+
+        if (value.maxAmount      / 10 ** decimals > 1e10) revert("MaxAmount over 10 billion");
+        if (value.slope * 1 days / 10 ** decimals > 1e10) revert("Slope over 10 billion per day");
+
+        if (value.maxAmount      / 10 ** decimals == 0) revert("MaxAmount below one unit");
+        if (value.slope * 1 days / 10 ** decimals == 0) revert("Slope below one unit per day");
     }
 
     function _testERC4626Onboarding(
@@ -210,67 +228,4 @@ abstract contract PatternLiquidityLayerTests is SpellRunner {
             assertGe(monthlySlope, depositMax);
         }
     }
-
-
-
-
-
-
-    // function _testControllerUpgrade(address oldController, address newController) internal {
-    //     ChainId currentChain = ChainIdUtils.fromUint(block.chainid);
-
-    //     PatternLiquidityLayerContext memory ctx = _getPatternLiquidityLayerContext();
-
-    //     // Note the functions used are interchangable with mainnet and foreign controllers
-    //     MainnetController controller = MainnetController(newController);
-
-    //     bytes32 CONTROLLER = ctx.proxy.CONTROLLER();
-    //     bytes32 RELAYER    = controller.RELAYER();
-    //     bytes32 FREEZER    = controller.FREEZER();
-
-    //     assertEq(ctx.proxy.hasRole(CONTROLLER, oldController), true);
-    //     assertEq(ctx.proxy.hasRole(CONTROLLER, newController), false);
-
-    //     assertEq(ctx.rateLimits.hasRole(CONTROLLER, oldController), true);
-    //     assertEq(ctx.rateLimits.hasRole(CONTROLLER, newController), false);
-
-    //     assertEq(controller.hasRole(RELAYER, ctx.relayer), false);
-    //     assertEq(controller.hasRole(FREEZER, ctx.freezer), false);
-
-    //     if (currentChain == ChainIdUtils.Ethereum()) {
-    //         assertEq(controller.mintRecipients(CCTPForwarder.DOMAIN_ID_CIRCLE_AVALANCHE), bytes32(uint256(uint160(address(0)))));
-    //     } else {
-    //         assertEq(controller.mintRecipients(CCTPForwarder.DOMAIN_ID_CIRCLE_ETHEREUM),  bytes32(uint256(uint160(address(0)))));
-    //     }
-
-    //     if (currentChain == ChainIdUtils.Ethereum()) {
-    //         assertEq(controller.centrifugeRecipients(PatternLiquidityLayerHelpers.AVALANCHE_DESTINATION_CENTRIFUGE_ID), bytes32(uint256(uint160(address(0)))));
-    //     } else {
-    //         assertEq(controller.centrifugeRecipients(PatternLiquidityLayerHelpers.ETHEREUM_DESTINATION_CENTRIFUGE_ID), bytes32(uint256(uint160(address(0)))));
-    //     }
-
-    //     executeAllPayloadsAndBridges();
-
-    //     assertEq(ctx.proxy.hasRole(CONTROLLER, oldController), false);
-    //     assertEq(ctx.proxy.hasRole(CONTROLLER, newController), true);
-
-    //     assertEq(ctx.rateLimits.hasRole(CONTROLLER, oldController), false);
-    //     assertEq(ctx.rateLimits.hasRole(CONTROLLER, newController), true);
-
-    //     assertEq(controller.hasRole(RELAYER, ctx.relayer), true);
-    //     assertEq(controller.hasRole(FREEZER, ctx.freezer), true);
-
-    //     if (currentChain == ChainIdUtils.Ethereum()) {
-    //         assertEq(controller.mintRecipients(CCTPForwarder.DOMAIN_ID_CIRCLE_AVALANCHE), bytes32(uint256(uint160(Avalanche.ALM_PROXY))));
-    //     } else {
-    //         assertEq(controller.mintRecipients(CCTPForwarder.DOMAIN_ID_CIRCLE_ETHEREUM),  bytes32(uint256(uint160(Ethereum.ALM_PROXY))));
-    //     }
-
-    //     if (currentChain == ChainIdUtils.Ethereum()) {
-    //         assertEq(controller.centrifugeRecipients(PatternLiquidityLayerHelpers.AVALANCHE_DESTINATION_CENTRIFUGE_ID), bytes32(uint256(uint160(Avalanche.ALM_PROXY))));
-    //     } else {
-    //         assertEq(controller.centrifugeRecipients(PatternLiquidityLayerHelpers.ETHEREUM_DESTINATION_CENTRIFUGE_ID), bytes32(uint256(uint160(Ethereum.ALM_PROXY))));
-    //     }
-    // }
-
 }
