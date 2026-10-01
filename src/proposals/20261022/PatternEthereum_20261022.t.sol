@@ -36,6 +36,7 @@ contract PatternEthereum_20261022Test is PatternTestBase {
     }
 
     function _setupAddresses() internal virtual {
+        // Pattern Deployer
         DEPLOYER  = 0x86865836187fD889B7AE65027056F3Fb43312018;
 
         vm.prank(DEPLOYER);
