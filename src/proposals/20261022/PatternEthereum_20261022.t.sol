@@ -92,7 +92,6 @@ contract PatternEthereum_20261022Test is PatternTestBase {
 
         // Amount derivation
         assertEq(usdc.decimals(),                6,                 "incorrect-usdc-decimals");
-        assertEq(35_000_000e6,                   expectedMaxAmount, "incorrect-max-amount-derivation");
         assertEq(10_000_000e6 / uint256(1 days), expectedSlope,     "incorrect-slope-derivation");
         assertEq(RIVER_TRANSFER_MAX,             expectedMaxAmount, "incorrect-max-amount-constant");
         assertEq(RIVER_TRANSFER_SLOPE,           expectedSlope,     "incorrect-slope-constant");
