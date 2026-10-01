@@ -50,6 +50,71 @@ contract PatternEthereum_20261022Test is PatternTestBase {
         chainData[ChainIdUtils.Ethereum()].payload = address(PATTERN_SPELL);
     }
 
+    // Checks the exact `setRateLimitData(key, maxAmount, slope)` arguments against hardcoded literals,
+    // independently of the helpers and constants used by the payload.
+    function test_riverTransferAssetRateLimitArguments() public {
+        bytes32 expectedKey       = 0x9e89eef868db62cc103dac9e8428957603e3ff835526132d10b5f1f327fc7605;
+        uint256 expectedMaxAmount = 35000000000000;  // 35,000,000 USDC
+        uint256 expectedSlope     = 115740740;       // 10,000,000 USDC per day, rounded down
+
+        // Key inputs
+        bytes32 limitAssetTransferKey = controller.LIMIT_ASSET_TRANSFER();
+
+        assertEq(
+            limitAssetTransferKey,
+            0x48f98264e3feb9c04c94251c86b84a95f369fb2973906e457f22ec9080cb6755,
+            "incorrect-limit-asset-transfer"
+        );
+        assertEq(limitAssetTransferKey, keccak256("LIMIT_ASSET_TRANSFER"), "incorrect-limit-asset-transfer-preimage");
+
+        assertEq(Ethereum.USDC,                         0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48, "incorrect-usdc");
+        assertEq(Ethereum.RIVER_SPV_2_OFFRAMP,          0xfD2cB7Ebbb339B9AA4E9C60e5aFa460F4888320F, "incorrect-registry-river-offramp");
+        assertEq(PATTERN_SPELL.RIVER_OFFRAMP_ADDRESS(), 0xfD2cB7Ebbb339B9AA4E9C60e5aFa460F4888320F, "incorrect-payload-river-offramp");
+
+        // Key derivation
+        assertEq(
+            keccak256(
+                abi.encode(
+                    bytes32(0x48f98264e3feb9c04c94251c86b84a95f369fb2973906e457f22ec9080cb6755),
+                    address(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48),
+                    address(0xfD2cB7Ebbb339B9AA4E9C60e5aFa460F4888320F)
+                )
+            ),
+            expectedKey,
+            "incorrect-key-derivation"
+        );
+        assertEq(
+            RateLimitHelpers.makeAssetDestinationKey(limitAssetTransferKey, Ethereum.USDC, RIVER_OFFRAMP_ADDRESS),
+            expectedKey,
+            "incorrect-helper-key"
+        );
+
+        // Amount derivation
+        assertEq(usdc.decimals(),                6,                 "incorrect-usdc-decimals");
+        assertEq(35_000_000e6,                   expectedMaxAmount, "incorrect-max-amount-derivation");
+        assertEq(10_000_000e6 / uint256(1 days), expectedSlope,     "incorrect-slope-derivation");
+        assertEq(RIVER_TRANSFER_MAX,             expectedMaxAmount, "incorrect-max-amount-constant");
+        assertEq(RIVER_TRANSFER_SLOPE,           expectedSlope,     "incorrect-slope-constant");
+
+        _assertZeroRateLimit(expectedKey);
+
+        // The payload must make exactly one call with exactly these arguments
+        vm.expectCall(
+            Ethereum.ALM_RATE_LIMITS,
+            abi.encodeWithSignature("setRateLimitData(bytes32,uint256,uint256)", expectedKey, expectedMaxAmount, expectedSlope),
+            1
+        );
+
+        executeMainnetPayload();
+
+        IRateLimits.RateLimitData memory data = rateLimits.getRateLimitData(expectedKey);
+
+        assertEq(data.maxAmount,   expectedMaxAmount, "after execution: incorrect-max-amount");
+        assertEq(data.slope,       expectedSlope,     "after execution: incorrect-slope");
+        assertEq(data.lastAmount,  expectedMaxAmount, "after execution: incorrect-last-amount");
+        assertEq(data.lastUpdated, block.timestamp,   "after execution: incorrect-last-updated");
+    }
+
     function test_riverTransferAssetAllocation() public {
         bytes32 transferAssetKey = RateLimitHelpers.makeAssetDestinationKey(
             controller.LIMIT_ASSET_TRANSFER(),
@@ -100,8 +165,8 @@ contract PatternEthereum_20261022Test is PatternTestBase {
         skip(1 days + 1 seconds);  // +1 second due to rounding
 
         assertEq(
-            rateLimits.getCurrentRateLimit(transferAssetKey), 
-            RIVER_TRANSFER_MAX, 
+            rateLimits.getCurrentRateLimit(transferAssetKey),
+            RIVER_TRANSFER_MAX,
             "step 2: limit-not-recharged-to-max"
         );
 
@@ -120,8 +185,8 @@ contract PatternEthereum_20261022Test is PatternTestBase {
         vm.stopPrank();
 
         assertEq(
-            usdc.balanceOf(RIVER_OFFRAMP_ADDRESS), 
-            riverBalance + RIVER_TRANSFER_MAX, 
+            usdc.balanceOf(RIVER_OFFRAMP_ADDRESS),
+            riverBalance + RIVER_TRANSFER_MAX,
             "step 3: incorrect-balance-delta"
         );
         assertEq(rateLimits.getCurrentRateLimit(transferAssetKey), 0, "step 3: limit-not-exhausted");
