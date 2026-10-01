@@ -77,4 +77,31 @@ library PatternLiquidityLayerHelpers {
         IRateLimits(rateLimits).setRateLimitData(usdsToUsdcKey, maxUsdcAmount, slope);
     }
 
+    /**
+     * @notice Set rate limit data with precision checks
+     * @dev Forked from Spark's SLLHelpers.setRateLimitData (sparkdotfi/spark-spells).
+     *      Requires maxAmount and slope to be within [1, 1e12] units of the asset,
+     *      unless the limit is unlimited (maxAmount = uint256.max, slope = 0).
+     */
+    function setRateLimitData(
+        bytes32 key,
+        address rateLimits,
+        uint256 maxAmount,
+        uint256 slope,
+        uint256 decimals
+    ) internal {
+        if (maxAmount == type(uint256).max) {
+            require(slope == 0, "InvalidUnlimitedRateLimitSlope");
+        } else {
+            uint256 upperBound = 1e12 * (10 ** decimals);
+            uint256 lowerBound = 10 ** decimals;
+
+            require(maxAmount <= upperBound && maxAmount >= lowerBound,             "InvalidMaxAmountPrecision");
+            require(slope <= upperBound / 1 hours && slope >= lowerBound / 1 hours, "InvalidSlopePrecision");
+            require(slope != 0,                                                     "InvalidSlopePrecision");
+        }
+
+        IRateLimits(rateLimits).setRateLimitData(key, maxAmount, slope);
+    }
+
 }

@@ -9,6 +9,12 @@ fs_permissions = [
 solc = "0.8.25"
 ffi = true
 evm_version = "cancun"
+# forge >= 1.8 auto-generates a scoped remapping that compiles xchain-helpers against its own
+# nested forge-std, so its `StdChains.Chain` becomes a different type from the one the test
+# harness imports. Point that scope at the root forge-std so both resolve to the same type.
+remappings = [
+    "lib/xchain-helpers/:forge-std/=lib/forge-std/src/"
+]
 
 [etherscan]
 mainnet = { key = "${MAINNET_API_KEY}" }
