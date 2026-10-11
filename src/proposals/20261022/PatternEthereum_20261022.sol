@@ -13,7 +13,7 @@ import { PatternLiquidityLayerHelpers } from "src/libraries/PatternLiquidityLaye
  * @title      October 22, 2026 Pattern Ethereum Proposal
  * @notice     Pattern River Allocation - Onboard Transfer Asset
  * @author     Pattern Labs
- * Forum Post: https://forum.skyeco.com/t/<TBD>
+ * Forum Post: https://forum.skyeco.com/t/technical-scope-for-the-october-22-2026-pattern-prime-spell/28295
  * Vote Link:  https://vote.sky.money/polling/<TBD>
  */
 contract PatternEthereum_20261022 is PatternPayloadEthereum {
@@ -23,7 +23,7 @@ contract PatternEthereum_20261022 is PatternPayloadEthereum {
 
     function _execute() internal override {
         // Onboard River Transfer Asset
-        // Forum: https://forum.skyeco.com/t/<TBD>
+        // Forum: https://forum.skyeco.com/t/technical-scope-for-the-october-22-2026-pattern-prime-spell/28295
         // Poll:  https://vote.sky.money/polling/<TBD>
         _onboardRiverTransferAssetAllocation();
     }
