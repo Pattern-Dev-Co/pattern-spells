@@ -143,7 +143,8 @@ abstract contract PatternLiquidityLayerTests is SpellRunner {
     }
 
     /**
-     * @dev Sanity check on a stored rate limit, forked from Spark's SparkLiquidityLayerTests._checkRateLimitValue.
+     * @dev Sanity check on a stored rate limit, forked from Spark's SparkLiquidityLayerTests._checkRateLimitValue at `dc2a653`:
+     *      https://github.com/sparkdotfi/spark-spells/blob/dc2a653f4b2f5491641276e913cae06e221ce8ea/src/test-harness/SparkLiquidityLayerTests.sol#L5380-L5391
      *      For bounded limits, checks maxAmount / 10 ** decimals and slope * 1 days / 10 ** decimals.
      *      Both integer results must be within [1, 1e10].
      */
