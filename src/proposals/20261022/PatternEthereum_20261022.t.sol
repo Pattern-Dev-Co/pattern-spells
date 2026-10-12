@@ -54,6 +54,8 @@ contract PatternEthereum_20261022Test is PatternTestBase {
     // Checks the exact `setRateLimitData(key, maxAmount, slope)` arguments against hardcoded literals,
     // independently of the helpers and constants used by the payload.
     function test_riverTransferAssetRateLimitArguments() public {
+        // keccak256(abi.encode(LIMIT_ASSET_TRANSFER, USDC, RIVER_SPV_2_OFFRAMP))
+        // see RateLimitHelpers.makeAssetDestinationKey for the derivation
         bytes32 expectedKey       = 0x9e89eef868db62cc103dac9e8428957603e3ff835526132d10b5f1f327fc7605;
         uint256 expectedMaxAmount = 35000000000000;  // 35,000,000 USDC
         uint256 expectedSlope     = 115740740;       // 10,000,000 USDC per day, rounded down
