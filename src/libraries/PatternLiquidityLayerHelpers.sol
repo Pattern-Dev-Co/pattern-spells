@@ -79,7 +79,8 @@ library PatternLiquidityLayerHelpers {
 
     /**
      * @notice Set rate limit data with precision checks
-     * @dev Forked from Spark's SLLHelpers.setRateLimitData (sparkdotfi/spark-spells).
+     * @dev Forked from Spark's SLLHelpers.setRateLimitData at `dc2a653`:
+     *      https://github.com/sparkdotfi/spark-spells/blob/dc2a653f4b2f5491641276e913cae06e221ce8ea/src/libraries/SLLHelpers.sol#L615-L637
      *      For bounded limits, maxAmount must be within [1, 1e12] asset units. slope is measured in
      *      asset base units per second and must be within
      *      [10 ** decimals / 1 hours, 1e12 * 10 ** decimals / 1 hours].
