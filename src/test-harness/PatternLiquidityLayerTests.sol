@@ -144,7 +144,8 @@ abstract contract PatternLiquidityLayerTests is SpellRunner {
 
     /**
      * @dev Sanity check on a stored rate limit, forked from Spark's SparkLiquidityLayerTests._checkRateLimitValue.
-     *      Reverts if a bounded limit is outside [1, 1e10] units per day for the given decimals.
+     *      For bounded limits, checks maxAmount / 10 ** decimals and slope * 1 days / 10 ** decimals.
+     *      Both integer results must be within [1, 1e10].
      */
     function _checkRateLimitValue(bytes32 key, uint256 decimals) internal view {
         IRateLimits.RateLimitData memory value = _getPatternLiquidityLayerContext().rateLimits.getRateLimitData(key);
