@@ -40,12 +40,12 @@ contract PatternEthereum_20261022Test is PatternTestBase {
         DEPLOYER  = 0x86865836187fD889B7AE65027056F3Fb43312018;
 
         vm.prank(DEPLOYER);
-        PATTERN_SPELL = new PatternSpell();
+        PATTERN_SPELL = PatternSpell(0xb38EB4a6f0Ae439a454EED67877f5aC7e66A7652);
     }
 
     function setUp() public {
-        // September 23, 2026
-        setupMainnetDomain({ mainnetForkBlock: 26041033 });
+        // October 13, 2026
+        setupMainnetDomain({ mainnetForkBlock: 26185640 });
         _setupAddresses();
 
         chainData[ChainIdUtils.Ethereum()].payload = address(PATTERN_SPELL);
